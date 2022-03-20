@@ -20,15 +20,10 @@ class DevCenter
 	 */
 	public function init() : void
 	{
-		global $db_show_debug, $dc_error_count, $modSettings;
+		global $db_show_debug, $modSettings;
 
 		// Hooks
 		$this->hooks();
-		// Settings
-		$this->defaultSettings();
-
-		// Start counting
-		$dc_error_count = 0;
 
 		// Do we want to display the debugging?
 		if (!empty($modSettings['devcenter_direct_printing_error']))
@@ -45,26 +40,9 @@ class DevCenter
 	private function hooks() : void
 	{
 		add_integration_function('integrate_actions', __CLASS__ . '::actions', false);
-		add_integration_function('integrate_current_action', __CLASS__ . '::menuButtons', false);
 		add_integration_function('integrate_modify_modifications', __CLASS__ . '::prepareSettings', false);
 		add_integration_function('integrate_admin_areas', __CLASS__ . '::adminArea', false);
-		add_integration_function('integrate_output_error', __CLASS__ . '::LogError', false);
-		add_integration_function('integrate_exit', __CLASS__ . '::exit', false);
-		add_integration_function('integrate_theme_context', __CLASS__ . '::errorCount', false);
-	}
-
-	/**
-	 * DevCenter::defaultSettings()
-	 * 
-	 * Adds the settings with some default values
-	 * 
-	 * @return void
-	 */
-	private function defaultSettings() : void
-	{
-		global $modSettings;
-
-		$modSettings['devcenter_error_count'] = 0;
+		add_integration_function('integrate_load_theme', __CLASS__ . '::serverLoad', false);
 	}
 
 	/**
@@ -86,25 +64,6 @@ class DevCenter
 
 		// phpinfo() action
 		$actions['phpinfo'] = ['Subs-DevCenter.php', __CLASS__ . '::phpinfo'];
-	}
-
-	/**
-	 * DevCenter::menuButtons()
-	 * 
-	 * Increment the counter for the admin button if there are errors
-	 * 
-	 * @return void
-	 */
-	public static function menuButtons() : void
-	{
-		global $modSettings, $context;
-
-		// Do we allow the error log to be shown?
-		if (empty($modSettings['devcenter_error_count']))
-			return;
-
-		// Add any entries
-		$context['menu_buttons']['admin']['amt'] += $modSettings['devcenter_error_count'];
 	}
 
 	/**
@@ -143,9 +102,9 @@ class DevCenter
 	 * 
 	 * Adds the settings for the mod
 	 * 
-	 * @return void
+	 * @return mixed
 	 */
-	public static function settings() : void
+	public static function settings($return_config = false)
 	{
 		global $context, $txt, $scripturl;
 
@@ -157,9 +116,13 @@ class DevCenter
 		$context['settings_title'] = $txt['devcenter'];
 		$config_vars = [
 			['check', 'devcenter_direct_printing_error'],
-			['check', 'devcenter_show_phpinfo'],
+			['check', 'devcenter_show_phpinfo', 'subtext' => $txt['devcenter_show_phpinfo_desc']],
 			['check', 'devcenter_displayserverload'],
 		];
+
+		// Return config vars
+		if ($return_config)
+			return $config_vars;
 
 		// Saving?
 		if (isset($_REQUEST['save']))
@@ -181,67 +144,34 @@ class DevCenter
 	 */
 	public static function phpinfo() : void
 	{
+		// Only for admins... I guess
+		isAllowedTo('admin_forum');
 		phpinfo();
 		exit;
 	}
 
 	/**
-	 * DevCenter::LogError()
+	 * DevCenter::serverLoad()
 	 * 
-	 * Count any errors encountered
-	 * 
-	 * @return void
-	 */
-	public static function LogError() : void
-	{
-		global $dc_error_count;
-
-		$dc_error_count++;
-	}
-
-	/**
-	 * DevCenter::exit()
-	 * 
-	 * Update the error count.
+	 * Adds the server load to the page
 	 * 
 	 * @return void
 	 */
-	public static function exit() : void
-	{
-		global $modSettings, $dc_error_count;
-
-		// Do we have any errors?
-		if (empty($modSettings['devcenter_error_count']))
-			return;
-
-		// Update the count
-		updateSettings(['devcenter_error_count' => $modSettings['devcenter_error_count'] + $dc_error_count]);
-	}
-
-	/**
-	 * DevCenter::errorCount()
-	 * 
-	 * Set the correct error count
-	 * 
-	 * @return void
-	 */
-	public static function errorCount() : void
+	public static function serverLoad() : void
 	{
 		global $context, $modSettings;
 
-		// Are we in the error log?
-		if (empty($context['current_action']) || $context['current_action'] != 'admin' || !isset($_REQUEST['area']) || $_REQUEST['area'] != 'logs')
+		// Can we add the server load?
+		if (empty($modSettings['devcenter_displayserverload']) || !function_exists('sys_getloadavg'))
 			return;
 
-		// Error log
-		if (!isset($_REQUEST['sa']) || $_REQUEST['sa'] == 'errorlog')
-		{
-			// Get the count
-			preg_match('~\((\d+)\)~', $context['error_types']['all']['label'], $matches);
+		// Add the server load
+		$context['devcenter_serverload'] = sys_getloadavg();
 
-			// Update the count if it's not the same
-			if (!empty($matches[1]) && $matches[1] != $modSettings['devcenter_error_count'])
-				updateSettings(['devcenter_error_count' => $matches[1]]);
-		}
+		// Load the template
+		loadTemplate('DevCenter');
+
+		// Add the layer for devcenter
+		$context['template_layers'] = array_merge(['devcenter'], $context['template_layers']);
 	}
 }
