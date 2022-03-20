@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE package-info SYSTEM "http://www.simplemachines.org/xml/package-info">
+<package-info xmlns="http://www.simplemachines.org/xml/package-info" xmlns:smf="http://www.simplemachines.org/">
+	<id>Yoshi2889:DevCenter</id>
+	<name>Dev Center</name>
+	<version>1.0</version>
+	<type>modification</type>
+	<install for="2.1 - 2.1.99">
+		<!-- Mod Readme -->
+		<readme lang="english" parsebbc="true" type="file">readme/readme.english.txt</readme>
+		<!-- License -->
+		<license type="inline" parsebbc="false">
+			This Source Code Form is subject to the terms of the General Public
+			License, v. 3.0. If a copy of the GPL was not distributed with this
+			file, You can obtain one at https://www.gnu.org/licenses/gpl-3.0.en.html.
+		</license>
+		<!-- Theme Files -->
+		<require-dir name="Language/DevCenter" destination="$languagedir">Language files</require-dir>
+		<!-- Source File -->
+		<require-file name="Sources/Subs-DevCenter.php" destination="$sourcedir" />
+		<!-- Hooks -->
+		<hook hook="integrate_pre_load" function="DevCenter::init#" file="$sourcedir/Subs-DevCenter.php" />
+	</install>
+	<uninstall for="2.1 - 2.1.99">
+		<!-- Hooks -->
+		<hook hook="integrate_pre_load" function="DevCenter::init#" file="$sourcedir/Subs-DevCenter.php" reverse="true" />
+		<!-- Source File -->
+		<remove-file name="$sourcedir/Subs-DevCenter.php">Source file</remove-file>
+		<!-- Languages -->
+		<remove-dir name="$languagedir/DevCenter">Language files</remove-dir>
+	</uninstall>
+</package-info>
