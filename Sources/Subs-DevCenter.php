@@ -168,6 +168,9 @@ class DevCenter
 		// Add the server load
 		$context['devcenter_serverload'] = sys_getloadavg();
 
+		// Language
+		loadLanguage('DevCenter/');
+
 		// Load the template
 		loadTemplate('DevCenter');
 
