@@ -16,7 +16,7 @@ Dev Center adds a couple of settings to the admin panel that might be useful whe
 
 ### Localization
 - ![English](https://www.simplemachines.org/site_images/lang/english.gif) English
-- ![Spanish](https://www.simplemachines.org/site_images/lang/croatian.gif) Spanish by [davidhs](https://www.simplemachines.org/community/index.php?action=profile;u=242014)
+- ![Spanish](https://www.simplemachines.org/site_images/lang/spanish.gif) Spanish by [davidhs](https://www.simplemachines.org/community/index.php?action=profile;u=242014)
 ---
 ### [Changelog](https://github.com/SMFTricks/DevCenter/blob/master/CHANGELOG.md)
 ### [GitHub](https://github.com/SMFTricks/DevCenter)
