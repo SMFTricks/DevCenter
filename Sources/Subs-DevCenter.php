@@ -2,7 +2,7 @@
 
 /**
  * @package Dev Center
- * @version 1.0
+ * @version 0.5
  * @author Diego Andrés <diegoandres_cortes@outlook.com>
  * @copyright Copyright (c) 2022, SMF Tricks
  * @license https://www.gnu.org/licenses/gpl-3.0.en.html
